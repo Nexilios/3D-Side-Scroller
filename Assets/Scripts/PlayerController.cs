@@ -1,188 +1,88 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    [Header("Movement")]
-    [SerializeField] private float walkSpeed = 5f;
-    [SerializeField] private float runSpeed = 10f;
-    [SerializeField] private float acceleration = 10f;
-    [SerializeField] private float deceleration = 10f;
-    
-    [Header("Jump Settings")]
-    [SerializeField] private float jumpForce = 12f;
-    [SerializeField] private float maxJumpTime = 0.3f;
-    [SerializeField] private float gravity = -25f;
-    [SerializeField] private float fallGravityMultiplier = 2f;
-    [SerializeField] private float lowJumpMultiplier = 2.5f;
-    
-    [Header("Physics Interaction")]
-    [SerializeField] private float pushPower = 5f;
-    [SerializeField] private float pushUpwardForce = 0.5f;
-    
-    [Header("Input Actions")]
-    [SerializeField] private InputActionReference moveAction;
-    [SerializeField] private InputActionReference jumpAction;
-    [SerializeField] private InputActionReference runAction;
-    
-    private CharacterController _controller;
-    private Vector3 _velocity;
-    private float _currentSpeed;
-    private float _horizontalInput;
-    private bool _isRunning;
-    private bool _jumpHeld;
-    private float _jumpTimeCounter;
-    private bool _isJumping;
-    
-    void Start()
-    {
-        _controller = GetComponent<CharacterController>();
-        
-        if (moveAction != null && moveAction.action != null)
-            moveAction.action.Enable();
-        if (jumpAction != null && jumpAction.action != null)
-            jumpAction.action.Enable();
-        if (runAction != null && runAction.action != null)
-            runAction.action.Enable();
-    }
-    
-    void OnDestroy()
-    {
-        if (moveAction != null && moveAction.action != null)
-            moveAction.action.Disable();
-        if (jumpAction != null && jumpAction.action != null)
-            jumpAction.action.Disable();
-        if (runAction != null && runAction.action != null)
-            runAction.action.Disable();
-    }
-    
-    void Update()
-    {
-        HandleInput();
-        HandleMovement();
-        HandleJump();
-        ApplyCustomGravity();
-        
-        _controller.Move(_velocity * Time.deltaTime);
-    }
-    
-    void HandleInput()
-    {
-        if (moveAction && moveAction.action != null)
-        {
-            Vector2 moveInput = moveAction.action.ReadValue<Vector2>();
-            _horizontalInput = moveInput.x;
-        }
-        else
-        {
-            _horizontalInput = 0f;
-        }
-        
-        if (runAction && runAction.action != null)
-        {
-            _isRunning = runAction.action.IsPressed();
-        }
-        else
-        {
-            _isRunning = false;
-        }
-        
-        if (jumpAction && jumpAction.action != null)
-        {
-            _jumpHeld = jumpAction.action.IsPressed();
-        }
-        else
-        {
-            _jumpHeld = false;
-        }
-    }
-    
-    void HandleMovement()
-    {
-        float targetSpeed = _isRunning ? runSpeed : walkSpeed;
-        
-        _currentSpeed = _horizontalInput != 0 ? Mathf.MoveTowards(_currentSpeed, targetSpeed * _horizontalInput, acceleration * Time.deltaTime) : Mathf.MoveTowards(_currentSpeed, 0f, deceleration * Time.deltaTime);
+    private readonly int _speedHash = Animator.StringToHash("Speed");
+    private readonly int _jumpHash = Animator.StringToHash("Jump");
 
-        _velocity.x = _currentSpeed;
-    }
+    [Header("Input Actions")] 
+    public InputActionReference moveAction;
+    public InputActionReference jumpAction;
     
-    void HandleJump()
-    {
-        bool isGrounded = _controller.isGrounded;
-        
-        if (jumpAction && jumpAction.action != null)
-        {
-            bool jumpPressed = jumpAction.action.WasPressedThisFrame();
-            
-            if (jumpPressed && isGrounded)
-            {
-                // Start jump
-                _isJumping = true;
-                _jumpTimeCounter = maxJumpTime;
-                _velocity.y = jumpForce;
-            }
-        }
-        
-        if (isGrounded && _velocity.y < 0)
-        {
-            _velocity.y = -2f;
-            _isJumping = false;
-            _jumpTimeCounter = 0f;
-        }
-        
-        if (_isJumping)
-        {
-            if (_jumpHeld && _jumpTimeCounter > 0)
-            {
-                _jumpTimeCounter -= Time.deltaTime;
-            }
-            else
-            {
-                _isJumping = false;
-            }
-        }
-        
-        if (!_jumpHeld && _isJumping)
-        {
-            _isJumping = false;
-            _jumpTimeCounter = 0f;
-        }
-    }
+    [Header("Player Movement")]
+    public float playerSpeed = 10f;
+    [Range(0f, 50f)]
+    public float jumpVelocity = 12f;
+    public float fallMultiplier = 2.5f;
+    public float lowJumpMultiplier = 2f;
+
+    private Rigidbody _rb;
+    private Animator _animator;
+    private Vector2 _moveAmount;
+    private bool _isGrounded;
     
-    void ApplyCustomGravity()
+    private void Awake()
     {
-        if (_isJumping && _jumpHeld && _jumpTimeCounter > 0)
+        _animator = GetComponent<Animator>();
+        _rb = GetComponent<Rigidbody>();
+    }
+
+    private void OnEnable()
+    {
+        moveAction.action.Enable();
+        jumpAction.action.Enable();
+    }
+
+    private void OnDisable()
+    {
+        moveAction.action.Disable();
+        jumpAction.action.Disable();
+    }
+
+    private void Update()
+    {
+        _moveAmount = moveAction.action.ReadValue<Vector2>();
+        
+        if (jumpAction.action.WasPressedThisFrame() && _isGrounded)
         {
-            _velocity.y += gravity * Time.deltaTime;
-        }
-        else if (_velocity.y > 0 && !_jumpHeld)
-        {
-            _velocity.y += gravity * lowJumpMultiplier * Time.deltaTime;
-        }
-        else if (_velocity.y < 0)
-        {
-            _velocity.y += gravity * fallGravityMultiplier * Time.deltaTime;
-        }
-        else if (!_isJumping)
-        {
-            _velocity.y += gravity * Time.deltaTime;
+            _rb.AddForce(new Vector3(0, jumpVelocity, 0), ForceMode.Impulse);
+            _isGrounded = false;
         }
     }
-    
-    // Handle physics interactions with rigidbodies (like the soccer ball)
-    void OnControllerColliderHit(ControllerColliderHit hit)
+
+    private void FixedUpdate()
     {
-        Rigidbody body = hit.collider.attachedRigidbody;
+        Running();
+        JumpPhysics();
+    }
+
+    private void JumpPhysics()
+    {
+        if (_rb.linearVelocity.y < 0)
+        { 
+            _rb.linearVelocity += Vector3.up * (Physics.gravity.y * (fallMultiplier - 1) * Time.deltaTime);
+        } 
+        else if (_rb.linearVelocity.y > 0 && !jumpAction.action.IsPressed())
+        {
+            _rb.linearVelocity += Vector3.up * (Physics.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime);
+        }
+    }
+
+    private void Running()
+    {
+        //_animator.SetFloat(_speedHash, _moveAmount.y);
         
-        if (body == null || body.isKinematic)
-            return;
+        Vector3 targetVelocity = transform.forward * (_moveAmount.x * playerSpeed);
         
-        Vector3 pushDir = new Vector3(hit.moveDirection.x, 0, hit.moveDirection.z) { y = pushUpwardForce };
-        
-        float currentMovementSpeed = Mathf.Abs(_currentSpeed);
-        float speedMultiplier = _isRunning ? 1.5f : 1f;
-        
-        body.linearVelocity = pushDir * pushPower * currentMovementSpeed * speedMultiplier;
+        _rb.linearVelocity = new Vector3(targetVelocity.x, _rb.linearVelocity.y, targetVelocity.z);
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
+        {
+            _isGrounded = true;
+        }
     }
 }
