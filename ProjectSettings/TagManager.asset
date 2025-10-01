@@ -15,11 +15,11 @@ TagManager:
   - InvisibleWall
   - SpecialWall
   - Ball
+  - PlatformTrigger
   - 
   - 
   - 
-  - 
-  - 
+  - PostProcessing
   - 
   - 
   - 
