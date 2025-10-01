@@ -33,7 +33,6 @@ public class CameraFollowPlayer : MonoBehaviour
         _playerController = playerTarget.GetComponent<PlayerController>();
         _characterController = playerTarget.GetComponent<CharacterController>();
         
-        // If no target is assigned, try to find the player automatically
         if (playerTarget == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -47,7 +46,6 @@ public class CameraFollowPlayer : MonoBehaviour
             }
         }
         
-        // Set initial camera position to target position with offset
         if (playerTarget != null)
         {
             transform.position = GetTargetPosition();
@@ -63,23 +61,19 @@ public class CameraFollowPlayer : MonoBehaviour
     
     private void FollowPlayer()
     {
-        // Calculate target position
         targetPosition = GetTargetPosition();
-        
-        // Apply look ahead if enabled
+
         if (useLookAhead)
         {
             ApplyLookAhead();
             targetPosition += lookAheadOffset;
         }
         
-        // Apply bounds if enabled
         if (useBounds)
         {
             targetPosition = ApplyBounds(targetPosition);
         }
         
-        // Smoothly move camera towards target position
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, 1f / followSpeed);
     }
     
@@ -90,13 +84,10 @@ public class CameraFollowPlayer : MonoBehaviour
     
     private void ApplyLookAhead()
     {
-        // Get player's input or movement direction for look ahead
         Vector3 playerMoveDirection = GetPlayerMoveDirection();
         
-        // Calculate target look ahead offset
         Vector3 targetLookAhead = playerMoveDirection * lookAheadDistance;
         
-        // Smoothly interpolate towards target look ahead
         lookAheadOffset = Vector3.Lerp(lookAheadOffset, targetLookAhead, lookAheadSpeed * Time.deltaTime);
     }
     
@@ -123,19 +114,16 @@ public class CameraFollowPlayer : MonoBehaviour
         return position;
     }
     
-    // Public method to change target at runtime
     public void SetTarget(Transform newTarget)
     {
         playerTarget = newTarget;
     }
     
-    // Public method to change offset at runtime
     public void SetOffset(Vector3 newOffset)
     {
         offset = newOffset;
     }
     
-    // Gizmos for visualizing bounds and look ahead
     private void OnDrawGizmosSelected()
     {
         if (useBounds)
@@ -158,7 +146,6 @@ public class CameraFollowPlayer : MonoBehaviour
             Gizmos.DrawWireSphere(lookAheadPos, 0.3f);
         }
         
-        // Draw camera follow area
         if (playerTarget != null)
         {
             Gizmos.color = Color.green;
