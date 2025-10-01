@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2093165501594666490}
   - component: {fileID: 692741866100524723}
   - component: {fileID: 103047114321200281}
-  - component: {fileID: 5289603666614188850}
+  - component: {fileID: 3373241651804812504}
   m_Layer: 0
   m_Name: Bridge_B
   m_TagString: Untagged
@@ -92,24 +92,25 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5289603666614188850
-BoxCollider:
+--- !u!95 &3373241651804812504
+Animator:
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6278820449297051836}
-  m_Material: {fileID: 13400000, guid: cfbec91919851d14dad0be1ff2c0a5ce, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5, y: 0.6239744, z: 3.896169}
-  m_Center: {x: 2.5, y: 0.08221721, z: 1.6226197}
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 39191b8a75b42ae47b9ab52a04268742, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
