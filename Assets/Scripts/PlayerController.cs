@@ -29,12 +29,14 @@ public class PlayerController : MonoBehaviour
     public InputActionReference jumpAction;
     public InputActionReference pauseAction;
     
-    [Header("Player Movement")]
+    [Header("Player Movement Settings")]
     [Range(0f, 20f)]
     public float playerSpeed = 10f;
     [Range(0f, 20f)]
     public float jumpVelocity = 12f;
+    [Range(0f, 10f)]
     public float fallMultiplier = 2.5f;
+    [Range(0f, 10f)]
     public float lowJumpMultiplier = 2f;
 
     private Rigidbody _rb;

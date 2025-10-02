@@ -4,35 +4,43 @@ public class MovingPlatform : MonoBehaviour
 {
     private readonly int _bShakeHash = Animator.StringToHash("bShake");
     
+    [Header("Platform Prerequisites")]
     public Transform platformVisual;
     public BoxCollider platformCollider;
+    
+    [Header("Platform Settings")]
+    public bool canCollapse;
+    [Range(0, 30)]
     public float timeToCollapse;
+    [Range(0, 10)]
     public float respawnTime;
     [Range(0, 10)]
     public float delayDuration;
-    public Vector3 lastPosition;
     [Range(0, 30)]
     public float moveDuration = 3f;
+    public Vector3 targetPositionOffset;
     
-    [SerializeField]
-    private bool isMoving;
+    [Header("Platform Details | Debugging")]
+    [SerializeField] private bool isMoving;
+    [SerializeField] private float moveTimer;
+    [SerializeField] private float delayTimer;
+    [SerializeField] private bool isDelayed;
+    [SerializeField] private bool isDestroyed;
     
     private Animator _visualAnimator;
     private Vector3 _originalPosition;
     private Vector3 _targetPosition;
-    private float _moveTimer;
-    private float _delayTimer;
-    private bool _isDelayed;
-    private bool _isDestroyed;
     
     private void Awake()
     {
-        if (!_visualAnimator && platformVisual)
+        if (!platformVisual) return;
+        
+        if (!_visualAnimator)
         {
             _visualAnimator = platformVisual.GetComponent<Animator>();
         }
 
-        if (platformCollider)
+        if (!platformCollider)
         {
             platformCollider = gameObject.GetComponent<BoxCollider>();
         }
@@ -40,51 +48,51 @@ public class MovingPlatform : MonoBehaviour
 
     private void OnEnable()
     {
-        if (!_isDestroyed) return;
+        if (!isDestroyed) return;
         
         RespawnPlatform();
-        _isDestroyed = false;
+        isDestroyed = false;
     }
     
     void Start()
     {
         _originalPosition = transform.position;
-        _targetPosition = _originalPosition + lastPosition;
+        _targetPosition = _originalPosition + targetPositionOffset;
     }
 
     private void FixedUpdate()
     {
         if (isMoving)
         {
-            if (_isDelayed)
+            if (isDelayed)
             {
-                _delayTimer += Time.fixedDeltaTime;
+                delayTimer += Time.fixedDeltaTime;
 
-                if (_delayTimer >= delayDuration)
+                if (delayTimer >= delayDuration)
                 {
-                    _isDelayed = false;
-                    _delayTimer = 0f;
+                    isDelayed = false;
+                    delayTimer = 0f;
                 }
             }
             else
             {
-                _moveTimer += Time.fixedDeltaTime;
-                float t = Mathf.PingPong(_moveTimer / moveDuration, 1f);
+                moveTimer += Time.fixedDeltaTime;
+                float t = Mathf.PingPong(moveTimer / moveDuration, 1f);
                 t = Mathf.SmoothStep(0f, 1f, t);
                 transform.position = Vector3.Lerp(_originalPosition, _targetPosition, t);
                 
                 if (delayDuration > 0 && t >= 1f || transform.position == _originalPosition)
                 {
-                    _isDelayed = true;
-                    _delayTimer = 0f;
+                    isDelayed = true;
+                    delayTimer = 0f;
                 }
             }
         }
         else
         {
-            _moveTimer = 0f;
-            _delayTimer = 0f;
-            _isDelayed = false;
+            moveTimer = 0f;
+            delayTimer = 0f;
+            isDelayed = false;
         }
     }
 
@@ -104,13 +112,15 @@ public class MovingPlatform : MonoBehaviour
 
     private void DestroyPlatform()
     {
-        _isDestroyed = true;
+        isDestroyed = true;
         
     }
 
     public void StartPlatformCollapse()
     {
+        if (!canCollapse) return;
         
+        _visualAnimator.SetBool(_bShakeHash, true);
     }
     
     private void OnDrawGizmosSelected()
@@ -121,7 +131,7 @@ public class MovingPlatform : MonoBehaviour
 
         if (!platformCollider) return;
         Vector3 origin = Application.isPlaying ? _originalPosition : transform.position + platformCollider.center;
-        Vector3 target = origin + lastPosition;
+        Vector3 target = origin + targetPositionOffset;
 
         Gizmos.DrawLine(origin, target);
         Gizmos.DrawWireCube(target, platformCollider.size);
