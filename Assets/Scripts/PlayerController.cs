@@ -1,16 +1,33 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Animator))] [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
-    private readonly int _isMovingHash = Animator.StringToHash("isMoving");
-    private readonly int _isIdleHash = Animator.StringToHash("isIdle");
-    private readonly int _isJumpingHash = Animator.StringToHash("isJumping");
-    private readonly int _jumpEndHash = Animator.StringToHash("jumpEnd");
+    private enum EPlayerStates
+    {
+        Idle,
+        Run,
+        Jump,
+        Victory,
+        Dead
+    }
 
+    private readonly Dictionary<string, int> _animHashes = new()
+    {
+        { "isMovingHash", Animator.StringToHash("isMoving")  },
+        { "isIdleHash", Animator.StringToHash("isIdle") },
+        { "isJumpingHash", Animator.StringToHash("isJumping") },
+        { "stageCompleteHash", Animator.StringToHash("stageComplete") },
+    };
+    
     [Header("Input Actions")] 
     public InputActionReference moveAction;
     public InputActionReference jumpAction;
+    public InputActionReference pauseAction;
     
     [Header("Player Movement")]
     [Range(0f, 20f)]
@@ -27,25 +44,43 @@ public class PlayerController : MonoBehaviour
     private bool _isGrounded;
     private bool _facingRight = true;
 
-    [Header("Player States")]
-    [SerializeField] private bool isIdle = true;
-    [SerializeField] private bool isRunning;
-    [SerializeField] private bool isJumping;
+    private Dictionary<EPlayerStates, bool> _playerStates;
     
     private void Awake()
     {
         _animator = GetComponent<Animator>();
         _rb = GetComponent<Rigidbody>();
         _playerRoot = GameObject.FindGameObjectWithTag("PlayerRoot").transform;
+        
+        _playerStates = new Dictionary<EPlayerStates, bool>
+        {
+            { EPlayerStates.Idle, true },
+            { EPlayerStates.Run, false },
+            { EPlayerStates.Jump, false },
+            { EPlayerStates.Victory, false },
+            { EPlayerStates.Dead, false }
+        };
     }
 
     private void OnEnable()
+    {
+        EnableGameplayInput();
+        pauseAction.action.Enable();
+    }
+
+    private void OnDisable()
+    {
+        DisableGameplayInput();
+        pauseAction.action.Disable();
+    }
+
+    private void EnableGameplayInput()
     {
         moveAction.action.Enable();
         jumpAction.action.Enable();
     }
 
-    private void OnDisable()
+    private void DisableGameplayInput()
     {
         moveAction.action.Disable();
         jumpAction.action.Disable();
@@ -59,14 +94,12 @@ public class PlayerController : MonoBehaviour
         
         if (_moveAmount.x == 0)
         {
-            isIdle = true;
-            _animator.SetTrigger(_isIdleHash);
+            ChangeState(EPlayerStates.Idle);
         }
         else
         {
-            isRunning = true;
-            _animator.SetTrigger(_isMovingHash);
-
+            ChangeState(EPlayerStates.Run);
+            
             if (_moveAmount.x > 0 && !_facingRight || _moveAmount.x < 0 && _facingRight)
             {
                 Flip();
@@ -76,8 +109,8 @@ public class PlayerController : MonoBehaviour
         if (jumpAction.action.WasPressedThisFrame())
         {
             _rb.AddForce(new Vector3(0, jumpVelocity, 0), ForceMode.Impulse);
-            isJumping = true;
-            _animator.SetTrigger(_isJumpingHash);
+            ChangeState(EPlayerStates.Jump);
+            
             _isGrounded = false;
         }
     }
@@ -89,10 +122,57 @@ public class PlayerController : MonoBehaviour
         theScale.y *= -1;
         _playerRoot.localScale = theScale;
     }
-    
-    private void UpdateState(string stateName, bool state)
+
+    public void KillPlayer()
     {
+        ChangeState(EPlayerStates.Dead);
+        DisableGameplayInput();
+    }
+
+    public void StageComplete()
+    {
+        ChangeState(EPlayerStates.Victory);
+        DisableGameplayInput();
+    }
+    
+    private void ChangeState(EPlayerStates stateName)
+    {
+        if (_playerStates[stateName].Equals(true)) return;
         
+        foreach (var st in _playerStates.ToList())
+        {
+            _playerStates[st.Key] = false;
+        }
+
+        foreach (var hash in _animHashes)
+        {
+            _animator.ResetTrigger(hash.Value);
+        }
+        
+        switch (stateName)
+        {
+            case EPlayerStates.Idle:
+                _playerStates[EPlayerStates.Idle] = true;
+                _animator.SetTrigger(_animHashes["isIdleHash"]);
+                break;
+            case EPlayerStates.Run:
+                _playerStates[EPlayerStates.Run] = true;
+                _animator.SetTrigger(_animHashes["isMovingHash"]);
+                break;
+            case EPlayerStates.Jump:
+                _playerStates[EPlayerStates.Jump] = true;
+                _animator.SetTrigger(_animHashes["isJumpingHash"]);
+                break;
+            case EPlayerStates.Victory:
+                _animator.SetTrigger(_animHashes["stageCompleteHash"]);
+                _playerStates[EPlayerStates.Victory] = true;
+                break;
+            case EPlayerStates.Dead:
+                _playerStates[EPlayerStates.Dead] = true;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(stateName), stateName, null);
+        }
     }
     
     
@@ -126,7 +206,6 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
         {
             _isGrounded = true;
-            _animator.SetTrigger(_jumpEndHash);
         }
     }
 }
