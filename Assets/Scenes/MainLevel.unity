@@ -6682,6 +6682,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: MovingPlatform
       objectReference: {fileID: 0}
+    - target: {fileID: 5082883086362729341, guid: 4df664c37e03dbb4f9cf5ada01206c47, type: 3}
+      propertyPath: canCollapse
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5082883086362729341, guid: 4df664c37e03dbb4f9cf5ada01206c47, type: 3}
+      propertyPath: collapseDuration
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5082883086362729341, guid: 4df664c37e03dbb4f9cf5ada01206c47, type: 3}
+      propertyPath: targetPositionOffset.y
+      value: 10.95
+      objectReference: {fileID: 0}
+    - target: {fileID: 6079140472916645964, guid: 4df664c37e03dbb4f9cf5ada01206c47, type: 3}
+      propertyPath: m_Size.x
+      value: 4.17
+      objectReference: {fileID: 0}
     - target: {fileID: 7745757404287707384, guid: 4df664c37e03dbb4f9cf5ada01206c47, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.5

@@ -11,7 +11,7 @@ public class MovingPlatform : MonoBehaviour
     [Header("Platform Settings")]
     public bool canCollapse;
     [Range(0, 30)]
-    public float timeToCollapse;
+    public float collapseDuration;
     [Range(0, 10)]
     public float respawnTime;
     [Range(0, 10)]
@@ -19,13 +19,18 @@ public class MovingPlatform : MonoBehaviour
     [Range(0, 30)]
     public float moveDuration = 3f;
     public Vector3 targetPositionOffset;
+    public bool canMove;
+    
     
     [Header("Platform Details | Debugging")]
-    [SerializeField] private bool isMoving;
     [SerializeField] private float moveTimer;
     [SerializeField] private float delayTimer;
+    [SerializeField] private float collapseTimer;
+    [SerializeField] private float respawnTimer;
+    [SerializeField] private bool isMovingToTarget = true;
     [SerializeField] private bool isDelayed;
-    [SerializeField] private bool isDestroyed;
+    [SerializeField] private bool isCollapsing;
+    [SerializeField] private bool hasCollapsed;
     
     private Animator _visualAnimator;
     private Vector3 _originalPosition;
@@ -48,25 +53,58 @@ public class MovingPlatform : MonoBehaviour
 
     private void OnEnable()
     {
-        if (!isDestroyed) return;
+        if (!hasCollapsed) return;
         
         RespawnPlatform();
-        isDestroyed = false;
+        hasCollapsed = false;
     }
     
-    void Start()
+    private void Start()
     {
         _originalPosition = transform.position;
         _targetPosition = _originalPosition + targetPositionOffset;
+        
+        isMovingToTarget = true;
+    }
+
+    private void Update()
+    {
+        if (hasCollapsed)
+        {
+            respawnTimer += Time.deltaTime;
+
+            if (respawnTimer >= respawnTime)
+            {
+                RespawnPlatform();
+            }
+            
+            return;
+        }
+        
+        if (!isCollapsing) return;
+        
+        collapseTimer += Time.deltaTime;
+        
+        if (collapseTimer >= collapseDuration)
+        {
+            DestroyPlatform();
+        }
     }
 
     private void FixedUpdate()
     {
-        if (isMoving)
+        if (hasCollapsed) return;
+        
+        MovePlatform();
+    }
+
+    private void MovePlatform()
+    {
+        if (canMove)
         {
             if (isDelayed)
             {
-                delayTimer += Time.fixedDeltaTime;
+                delayTimer += Time.deltaTime;
 
                 if (delayTimer >= delayDuration)
                 {
@@ -76,50 +114,72 @@ public class MovingPlatform : MonoBehaviour
             }
             else
             {
-                moveTimer += Time.fixedDeltaTime;
-                float t = Mathf.PingPong(moveTimer / moveDuration, 1f);
-                t = Mathf.SmoothStep(0f, 1f, t);
-                transform.position = Vector3.Lerp(_originalPosition, _targetPosition, t);
+                moveTimer += Time.deltaTime;
+                float t = moveTimer / moveDuration;
                 
-                if (delayDuration > 0 && t >= 1f || transform.position == _originalPosition)
+                if (t >= 1f)
                 {
-                    isDelayed = true;
-                    delayTimer = 0f;
+                    transform.position = isMovingToTarget ? _targetPosition : _originalPosition;
+                    
+                    if (delayDuration > 0)
+                    {
+                        isDelayed = true;
+                        delayTimer = 0f;
+                    }
+                    
+                    moveTimer = 0f;
+                    isMovingToTarget = !isMovingToTarget;
+                }
+                else
+                {
+                    float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+                    transform.position = isMovingToTarget ? Vector3.Lerp(_originalPosition, _targetPosition, smoothT) : Vector3.Lerp(_targetPosition, _originalPosition, smoothT);
                 }
             }
         }
         else
         {
-            moveTimer = 0f;
-            delayTimer = 0f;
-            isDelayed = false;
+            ResetPlatformMovementTimer();
         }
+    }
+    private void ResetPlatformMovementTimer()
+    {
+        moveTimer = 0f;
+        delayTimer = 0f;
+        isDelayed = false;
     }
 
     private void RespawnPlatform()
     {
+        hasCollapsed = false;
+        
         transform.position =  _originalPosition;
-        if (_visualAnimator)
-        {
-            _visualAnimator.SetBool(_bShakeHash, false);
-        }
-    }
-
-    public void SetPlatformMode(bool bEnable)
-    {
-        isMoving = bEnable;
+        
+        respawnTimer = 0f;
+        platformVisual.gameObject.SetActive(true);
+        platformCollider.enabled = true;
     }
 
     private void DestroyPlatform()
     {
-        isDestroyed = true;
+        isCollapsing = false;
+        collapseTimer = 0f;
         
+        _visualAnimator.SetBool(_bShakeHash, false);
+        platformVisual.gameObject.SetActive(false);
+        platformCollider.enabled = false;
+        
+        ResetPlatformMovementTimer();
+        
+        hasCollapsed = true;
     }
 
     public void StartPlatformCollapse()
     {
         if (!canCollapse) return;
-        
+
+        isCollapsing = true;
         _visualAnimator.SetBool(_bShakeHash, true);
     }
     
