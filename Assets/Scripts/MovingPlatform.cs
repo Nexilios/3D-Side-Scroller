@@ -19,10 +19,10 @@ public class MovingPlatform : MonoBehaviour
     [Range(0, 30)]
     public float moveDuration = 3f;
     public Vector3 targetPositionOffset;
-    public bool canMove;
     
     
     [Header("Platform Details | Debugging")]
+    [SerializeField] private bool canMove;
     [SerializeField] private float moveTimer;
     [SerializeField] private float delayTimer;
     [SerializeField] private float collapseTimer;
@@ -182,15 +182,24 @@ public class MovingPlatform : MonoBehaviour
         isCollapsing = true;
         _visualAnimator.SetBool(_bShakeHash, true);
     }
+
+    public void EnablePlatformMovement()
+    {
+        canMove = true;
+    }
+
+    public void DisablePlatformMovement()
+    {
+        canMove = false;
+    }
     
     private void OnDrawGizmosSelected()
     {
-        
         // Visualize platform movement range
         Gizmos.color = Color.green;
 
         if (!platformCollider) return;
-        Vector3 origin = Application.isPlaying ? _originalPosition : transform.position + platformCollider.center;
+        Vector3 origin = transform.position + platformCollider.center;
         Vector3 target = origin + targetPositionOffset;
 
         Gizmos.DrawLine(origin, target);
