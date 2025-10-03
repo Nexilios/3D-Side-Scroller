@@ -11,6 +11,8 @@ public class MovingPlatform : MonoBehaviour
     [Header("Platform Settings")]
     public bool canCollapse;
     public bool startDelayed;
+    [Range(0, 10)]
+    public float startDelayedDuration;
     [Range(0, 30)]
     public float collapseDuration;
     [Range(0, 10)]
@@ -108,10 +110,14 @@ public class MovingPlatform : MonoBehaviour
             {
                 delayTimer += Time.deltaTime;
 
-                if (delayTimer >= delayDuration)
+                if (delayTimer >= (startDelayed ? startDelayedDuration : delayDuration))
                 {
-                    isDelayed = false;
                     delayTimer = 0f;
+                    if (startDelayed)
+                    {
+                        startDelayed = false;
+                    }
+                    isDelayed = false;
                 }
             }
             else
