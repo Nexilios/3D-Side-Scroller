@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public GameObject pauseMenu;
+    public GameObject gameOverMenu;
     public PlayerController player;
     public static bool IsPaused = false;
     public static bool IsGameOver = false;
@@ -25,7 +26,9 @@ public class GameManager : MonoBehaviour
     
     public void GameOver()
     {
-        
+        IsGameOver = true;
+        Time.timeScale = 0;
+        gameOverMenu.SetActive(true);
     }
 
     public void StageComplete()
@@ -66,8 +69,7 @@ public class GameManager : MonoBehaviour
     public void RestartGame()
     {
         SceneManager.LoadScene(0);
-        /*Time.timeScale = 1;
-        pauseMenu.SetActive(false);*/
+        Time.timeScale = 1;
     }
 
     public void QuitGame()
