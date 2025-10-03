@@ -92,22 +92,15 @@ public class PlayerController : MonoBehaviour
     {
         _moveAmount = moveAction.action.ReadValue<Vector2>();
 
+        if (_moveAmount.x > 0 && !_facingRight || _moveAmount.x < 0 && _facingRight)
+        {
+            Flip();
+        }
+
         if (!_isGrounded) return;
-        
-        if (_moveAmount.x == 0)
-        {
-            ChangeState(EPlayerStates.Idle);
-        }
-        else
-        {
-            ChangeState(EPlayerStates.Run);
-            
-            if (_moveAmount.x > 0 && !_facingRight || _moveAmount.x < 0 && _facingRight)
-            {
-                Flip();
-            }
-        }
-            
+
+        ChangeState(_moveAmount.x == 0 ? EPlayerStates.Idle : EPlayerStates.Run);
+
         if (jumpAction.action.WasPressedThisFrame())
         {
             _rb.AddForce(new Vector3(0, jumpVelocity, 0), ForceMode.Impulse);
