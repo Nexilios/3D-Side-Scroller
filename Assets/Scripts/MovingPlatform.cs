@@ -10,6 +10,7 @@ public class MovingPlatform : MonoBehaviour
     
     [Header("Platform Settings")]
     public bool canCollapse;
+    public bool startDelayed;
     [Range(0, 30)]
     public float collapseDuration;
     [Range(0, 10)]
@@ -65,6 +66,7 @@ public class MovingPlatform : MonoBehaviour
         _targetPosition = _originalPosition + targetPositionOffset;
         
         isMovingToTarget = true;
+        if (startDelayed) isDelayed = true;
     }
 
     private void Update()
@@ -137,10 +139,6 @@ public class MovingPlatform : MonoBehaviour
                     transform.position = isMovingToTarget ? Vector3.Lerp(_originalPosition, _targetPosition, smoothT) : Vector3.Lerp(_targetPosition, _originalPosition, smoothT);
                 }
             }
-        }
-        else
-        {
-            ResetPlatformMovementTimer();
         }
     }
     private void ResetPlatformMovementTimer()
