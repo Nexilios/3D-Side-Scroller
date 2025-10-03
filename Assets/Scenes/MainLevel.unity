@@ -1777,6 +1777,55 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7386151603077733508, guid: 22effb3af2b2279489652f19db9df6ab, type: 3}
   m_PrefabInstance: {fileID: 1741026311}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &717975887
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 717975889}
+  - component: {fileID: 717975888}
+  m_Layer: 0
+  m_Name: Timeline
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!320 &717975888
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 717975887}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: 2beb53962c31d734a9ee849024db127c, type: 2}
+  m_InitialState: 1
+  m_WrapMode: 2
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings: []
+  m_ExposedReferences:
+    m_References: []
+--- !u!4 &717975889
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 717975887}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -39.26798, y: 10.45, z: 14.58172}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &741023057
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6547,6 +6596,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5082883086362729341, guid: 4df664c37e03dbb4f9cf5ada01206c47, type: 3}
+      propertyPath: startDelayed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5082883086362729341, guid: 4df664c37e03dbb4f9cf5ada01206c47, type: 3}
       propertyPath: collapseDuration
       value: 6
       objectReference: {fileID: 0}
@@ -6822,6 +6875,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 9171790772525850924}
     - target: {fileID: 4273049266787331554, guid: 9cf6b59acaac0bb4e9b57f2e7a23e8fd, type: 3}
+      propertyPath: animateDuration
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4273049266787331554, guid: 9cf6b59acaac0bb4e9b57f2e7a23e8fd, type: 3}
       propertyPath: buttonPressedOffset.y
       value: -0.35
       objectReference: {fileID: 0}
@@ -6951,3 +7008,4 @@ SceneRoots:
   - {fileID: 752340845}
   - {fileID: 1410745313}
   - {fileID: 500864923807465709}
+  - {fileID: 717975889}
