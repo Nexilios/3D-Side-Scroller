@@ -9,6 +9,7 @@ public class MovingPlatform : MonoBehaviour
     public BoxCollider platformCollider;
     
     [Header("Platform Settings")]
+    public bool canMove;
     public bool canCollapse;
     public bool startDelayed;
     [Range(0, 10)]
@@ -25,7 +26,6 @@ public class MovingPlatform : MonoBehaviour
     
     
     [Header("Platform Details | Debugging")]
-    [SerializeField] private bool canMove;
     [SerializeField] private float moveTimer;
     [SerializeField] private float delayTimer;
     [SerializeField] private float collapseTimer;
