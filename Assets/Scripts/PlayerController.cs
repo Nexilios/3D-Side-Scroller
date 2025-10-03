@@ -76,13 +76,13 @@ public class PlayerController : MonoBehaviour
         pauseAction.action.Disable();
     }
 
-    private void EnableGameplayInput()
+    public void EnableGameplayInput()
     {
         moveAction.action.Enable();
         jumpAction.action.Enable();
     }
 
-    private void DisableGameplayInput()
+    public void DisableGameplayInput()
     {
         moveAction.action.Disable();
         jumpAction.action.Disable();
