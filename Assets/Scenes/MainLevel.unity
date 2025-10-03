@@ -166,11 +166,11 @@ MonoBehaviour:
       Offset: {x: 0, y: 0}
   CenterOnActivate: 0
   TargetOffset: {x: 0, y: 0, z: 0}
-  Damping: {x: 0, y: 1}
+  Damping: {x: 0, y: 0}
   Lookahead:
-    Enabled: 1
-    Time: 0.1
-    Smoothing: 1
+    Enabled: 0
+    Time: 0
+    Smoothing: 0
     IgnoreY: 0
 --- !u!114 &20900627
 MonoBehaviour:
