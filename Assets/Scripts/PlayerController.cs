@@ -92,6 +92,19 @@ public class PlayerController : MonoBehaviour
     {
         _moveAmount = moveAction.action.ReadValue<Vector2>();
 
+        if (pauseAction.action.WasPressedThisFrame())
+        {
+            if (!GameManager.IsPaused)
+            {
+                GameManager.Instance.PauseGame();
+            }
+            else
+            {
+                GameManager.Instance.ResumeGame();
+            }
+            GameManager.IsPaused = !GameManager.IsPaused;
+        }
+        
         if (_moveAmount.x > 0 && !_facingRight || _moveAmount.x < 0 && _facingRight)
         {
             Flip();
