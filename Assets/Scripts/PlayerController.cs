@@ -12,8 +12,7 @@ public class PlayerController : MonoBehaviour
         Idle,
         Run,
         Jump,
-        Victory,
-        Dead
+        Victory
     }
 
     private readonly Dictionary<string, int> _animHashes = new()
@@ -60,7 +59,6 @@ public class PlayerController : MonoBehaviour
             { EPlayerStates.Run, false },
             { EPlayerStates.Jump, false },
             { EPlayerStates.Victory, false },
-            { EPlayerStates.Dead, false }
         };
     }
 
@@ -90,6 +88,8 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (_playerStates[EPlayerStates.Victory]) return;
+        
         _moveAmount = moveAction.action.ReadValue<Vector2>();
 
         if (pauseAction.action.WasPressedThisFrame())
@@ -123,16 +123,10 @@ public class PlayerController : MonoBehaviour
         _playerRoot.localScale = theScale;
     }
 
-    public void KillPlayer()
-    {
-        ChangeState(EPlayerStates.Dead);
-        DisableGameplayInput();
-    }
-
     public void StageComplete()
     {
-        ChangeState(EPlayerStates.Victory);
         DisableGameplayInput();
+        ChangeState(EPlayerStates.Victory);
     }
     
     private void ChangeState(EPlayerStates stateName)
@@ -164,11 +158,8 @@ public class PlayerController : MonoBehaviour
                 _animator.SetTrigger(_animHashes["isJumpingHash"]);
                 break;
             case EPlayerStates.Victory:
-                _animator.SetTrigger(_animHashes["stageCompleteHash"]);
                 _playerStates[EPlayerStates.Victory] = true;
-                break;
-            case EPlayerStates.Dead:
-                _playerStates[EPlayerStates.Dead] = true;
+                _animator.SetTrigger(_animHashes["stageCompleteHash"]);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(stateName), stateName, null);
