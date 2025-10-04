@@ -5,12 +5,12 @@ public class GameManager : MonoBehaviour
 {
     public GameObject pauseMenu;
     public GameObject gameOverMenu;
+    public GameObject stageCompleteMenu;
     public PlayerController player;
-    public static bool IsPaused = false;
-    public static bool IsGameOver = false;
+    public static bool IsPhysicsPaused = false;
     public static GameManager Instance;
-
-    void Awake()
+    
+    private void Awake()
     {
         if (!Instance)
         {
@@ -20,50 +20,67 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        IsPaused = false;
-        IsGameOver = false;
+        IsPhysicsPaused = false;
     }
     
     public void GameOver()
     {
-        IsGameOver = true;
+        IsPhysicsPaused = true;
         Time.timeScale = 0;
         gameOverMenu.SetActive(true);
     }
 
     public void StageComplete()
     {
-        
+        IsPhysicsPaused = true;
+        Time.timeScale = 0;
+        stageCompleteMenu.SetActive(true);
     }
 
-    public void PauseGame()
+    private void DisablePlayerMovement()
     {
-        IsPaused = true;
-        Time.timeScale = 0;
-        if (player)
-        {
-            player.DisableGameplayInput();
-        }
+        if (!player) return;
+        player.DisableGameplayInput();
+    }
+
+    private void EnablePlayerMovement()
+    {
+        if (!player) return;
+        player.EnableGameplayInput();
+    }
+
+    public void TogglePauseMenu()
+    {
+        if (!pauseMenu) return;
         
-        if (pauseMenu)
+        if (!IsPhysicsPaused)
         {
-            pauseMenu.SetActive(true);
+            PauseGame();
         }
+        else
+        {
+            ResumeGame();
+        }
+    }
+    
+    private void PauseGame()
+    {
+        if (!pauseMenu) return;
+        
+        IsPhysicsPaused = true;
+        Time.timeScale = 0;
+        DisablePlayerMovement();
+        pauseMenu.SetActive(true);
     }
 
     public void ResumeGame()
     {
-        IsPaused = false;
-        Time.timeScale = 1;
-        if (player)
-        {
-            player.EnableGameplayInput();
-        }
+        if(!pauseMenu) return;
         
-        if (pauseMenu)
-        {
-            pauseMenu.SetActive(false);
-        }
+        IsPhysicsPaused = false;
+        Time.timeScale = 1;
+        EnablePlayerMovement();
+        pauseMenu.SetActive(false);
     }
 
     public void RestartGame()

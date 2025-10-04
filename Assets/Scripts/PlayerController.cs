@@ -94,15 +94,7 @@ public class PlayerController : MonoBehaviour
 
         if (pauseAction.action.WasPressedThisFrame())
         {
-            if (!GameManager.IsPaused)
-            {
-                GameManager.Instance.PauseGame();
-            }
-            else
-            {
-                GameManager.Instance.ResumeGame();
-            }
-            GameManager.IsPaused = !GameManager.IsPaused;
+            GameManager.Instance.TogglePauseMenu();
         }
         
         if (_moveAmount.x > 0 && !_facingRight || _moveAmount.x < 0 && _facingRight)
@@ -186,6 +178,7 @@ public class PlayerController : MonoBehaviour
     
     private void FixedUpdate()
     {
+        if (GameManager.Instance && GameManager.IsPhysicsPaused) return;
         Running();
         JumpPhysics();
     }
