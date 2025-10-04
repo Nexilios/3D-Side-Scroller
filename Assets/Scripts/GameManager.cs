@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
     public GameObject pauseMenu;
     public GameObject gameOverMenu;
     public GameObject stageCompleteMenu;
+    public GameObject firstPuzzleTimeline;
     public PlayerController player;
     public static bool IsPhysicsPaused = false;
     public static GameManager Instance;
@@ -21,6 +22,18 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         IsPhysicsPaused = false;
+    }
+
+    public void StartFirstPuzzleCutscene()
+    {
+        if (!firstPuzzleTimeline) return;
+        
+        firstPuzzleTimeline.SetActive(true);
+    }
+
+    public void DestroyCurrentTimeline(GameObject tl)
+    {
+        if (tl) Destroy(tl);
     }
     
     public void GameOver()
