@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        Cursor.visible = false;
         IsPhysicsPaused = false;
         player = FindFirstObjectByType<PlayerController>();
     }
@@ -44,6 +45,7 @@ public class GameManager : MonoBehaviour
     
     public void GameOver()
     {
+        Cursor.visible = true;
         IsPhysicsPaused = true;
         Time.timeScale = 0;
         player.gameObject.SetActive(false);
@@ -79,6 +81,7 @@ public class GameManager : MonoBehaviour
     
     public void ShowStageCompleteMenu()
     {
+        Cursor.visible = true;
         IsPhysicsPaused = true;
         stageCompleteMenu.SetActive(true);
     }
@@ -111,6 +114,7 @@ public class GameManager : MonoBehaviour
     
     private void PauseGame()
     {
+        Cursor.visible = true;
         if (!pauseMenu) return;
         
         IsPhysicsPaused = true;
@@ -121,6 +125,7 @@ public class GameManager : MonoBehaviour
 
     public void ResumeGame()
     {
+        Cursor.visible = false;
         if(!pauseMenu) return;
         
         IsPhysicsPaused = false;
